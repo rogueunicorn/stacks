@@ -2,6 +2,19 @@ require 'securerandom'
 SparkleFormation.new(:hello_phoenix_rds) do
   description 'RDS Template'
 
+  resources.db_instance do
+    type 'AWS::RDS::DBInstance'
+    properties do
+      DB_name             ref!(:db_name)
+      DBInstanceClass     ref!(:db_instance_class)
+      Engine              ref!(:db_engine)
+      MultiAZ             ref!(:db_is_multi_az)
+      MasterUsername      ref!(:db_user)
+      MasterUserPassword  ref!(:db_password)
+      AllocatedStorage    ref!(:db_storage)
+    end
+  end
+
   parameters.db_name do
     description 'DB Name'
     type        'String'
@@ -11,7 +24,7 @@ SparkleFormation.new(:hello_phoenix_rds) do
   parameters.db_engine do
     description 'DB Engine'
     type        'String'
-    default     'PostgresSQL'
+    default     'postgres'
   end
 
   parameters.db_is_multi_az do
@@ -22,11 +35,12 @@ SparkleFormation.new(:hello_phoenix_rds) do
   end
 
   parameters.db_instance_class do
-    description     'DB instance type. Default is db.m1.small.'
+    description     'DB instance type. Default is db.m1.micro.'
     type            'String'
-    default         'db.m1.small'
+    default         'db.t1.micro'
   end
 
+  # db.t1.micro | db.m1.small | db.m1.medium | db.m1.large | db.m1.xlarge | db.m2.xlarge |db.m2.2xlarge | db.m2.4xlarge | db.m3.medium | db.m3.large | db.m3.xlarge | db.m3.2xlarge | db.m4.large | db.m4.xlarge | db.m4.2xlarge | db.m4.4xlarge | db.m4.10xlarge | db.r3.large | db.r3.xlarge | db.r3.2xlarge | db.r3.4xlarge | db.r3.8xlarge | db.t2.micro | db.t2.small | db.t2.medium | db.t2.large
   parameters.db_user do
     description     'DB MasterUsername.'
     type            'String'
@@ -45,19 +59,5 @@ SparkleFormation.new(:hello_phoenix_rds) do
     type            'Number'
     default         5
   end
-
-  resources.db_instance do
-    type 'AWS::RDS::DBInstance'
-    properties do
-      db_name               ref!(:db_name)
-      db_engine             ref!(:db_engine)
-      multi_az              ref!(:db_is_multi_az)
-      master_username       ref!(:db_user)
-      master_user_password  ref!(:db_password)
-      db_instance_class     ref!(:db_instance_class)
-      allocated_storage     ref!(:db_storage)
-    end
-  end
-
 
 end
