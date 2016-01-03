@@ -3,9 +3,11 @@ stack_defaults:
     application: hello_phoenix
 region_defaults:
     us-west-2:
-    tags:
-      environment: production
+      tags:
+        environment: production
 stacks:
   us-west-2:
     hello_phoenix_rds:
       template: hello_phoenix_rds.rb
+    hello_phoenix_vpc:
+      template: hello_phoenix_vpc.rb
