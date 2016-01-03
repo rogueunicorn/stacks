@@ -1,10 +1,24 @@
 SparkleFormation.new(:hello_phoenix_vpc) do
   description 'VPC Template'
 
+  PORT_80 = {
+    IpProtocol: 'tcp',
+    FromPort:   '80',
+    ToPort:     '80',
+    CidrIp:     '0.0.0.0/0'
+  }
+
+  PORT_443 = {
+    IpProtocol: 'tcp',
+    FromPort:   '443',
+    ToPort:     '443',
+    CidrIp:     '0.0.0.0/0'
+  }
+
   resources.vpc do
     type 'AWS::EC2::VPC'
     properties do
-      cidr_block ref!(:vpc_cidr)
+      CidrBlock ref!(:vpc_cidr)
     end
   end
 
@@ -17,7 +31,7 @@ SparkleFormation.new(:hello_phoenix_vpc) do
   resources.internet_gateway_attachment do
     type 'AWS::EC2::VPCGatewayAttachment'
     properties do
-      vpc_id              ref!(:vpc)
+      VpcId              ref!(:vpc)
       internet_gateway_id ref!(:internet_gateway)
     end
   end
@@ -25,12 +39,12 @@ SparkleFormation.new(:hello_phoenix_vpc) do
   resources.public_subnet_az_1 do
     type 'AWS::EC2::Subnet'
     properties do
-      vpc_id            ref!(:vpc)
-      cidr_block        ref!(:az_1_public_cidr)
-      availability_zone ref!(:vpc_az_1)
-      tags _array(
+      VpcId            ref!(:vpc)
+      CidrBlock        ref!(:az_1_public_cidr)
+      AvailabilityZone ref!(:vpc_az_1)
+      Tags _array(
         { Key: 'Name', Value: 'PublicSubnet' },
-        { Key: 'network', Value: 'public' }
+        { Key: 'Network', Value: 'public' }
       )
     end
   end
@@ -38,12 +52,12 @@ SparkleFormation.new(:hello_phoenix_vpc) do
   resources.public_subnet_az_2 do
     type 'AWS::EC2::Subnet'
     properties do
-      vpc_id            ref!(:vpc)
-      cidr_block        ref!(:az_2_public_cidr)
-      availability_zone ref!(:vpc_az_2)
-      tags _array(
+      VpcId            ref!(:vpc)
+      CidrBlock        ref!(:az_2_public_cidr)
+      AvailabilityZone ref!(:vpc_az_2)
+      Tags _array(
         { Key: 'Name', Value: 'PublicSubnet' },
-        { Key: 'network', Value: 'public' }
+        { Key: 'Network', Value: 'public' }
       )
     end
   end
@@ -51,25 +65,40 @@ SparkleFormation.new(:hello_phoenix_vpc) do
   resources.public_subnet_az_3 do
     type 'AWS::EC2::Subnet'
     properties do
-      vpc_id            ref!(:vpc)
-      cidr_block        ref!(:az3_public_cidr)
-_      availability_zone ref!(:vpc_az_3)
-      tags _array(
+      VpcId            ref!(:vpc)
+      CidrBlock        ref!(:az3_public_cidr)
+      AvailabilityZone ref!(:vpc_az_3)
+      Tags _array(
         { Key: 'Name', Value: 'PublicSubnet' },
-        { Key: 'network', Value: 'public' }
+        { Key: 'Network', Value: 'Public' }
       )
     end
   end
 
+  resources.app_security_group do
+    type 'AWS::EC2::SecurityGroup'
+    properties do
+      VpcId                 ref!(:vpc)
+      GroupDescription      'Allow http/s to client host'
+      SecurityGroupIngress  [PORT_80, PORT_443]
+      SecurityGroupEgress   [PORT_80, PORT_443]
+      Tags                  [{ Key: 'Name', Value: 'AppSecurityGroup' }]
+    end
+  end
+
+  # AWS::EC2::SecurityGroupEgress
+  # AWS::EC2::SecurityGroupIngress
+
+
   # resources.private_subnet_az_1 do
   #   type 'AWS::EC2::Subnet'
   #   properties do
-  #     vpc_id            ref!(:vpc)
-  #     cidr_block        ref!(:az1_private_cidr)
-  #     availability_zone ref!(:vpc_az_1)
-  #     tags _array(
+  #     VpcId            ref!(:vpc)
+  #     CidrBlock        ref!(:az1_private_cidr)
+  #     AvailabilityZone ref!(:vpc_az_1)
+  #     Tags _array(
   #       { Key: 'Name', Value: 'PrivateSubnet' },
-  #       { Key: 'network', Value: 'private' }
+  #       { Key: 'Network', Value: 'private' }
   #     )
   #   end
   # end
@@ -83,7 +112,7 @@ _      availability_zone ref!(:vpc_az_3)
 # }
 
   outputs do
-    vpc_id do
+    VpcId do
       description 'VPC ID'
       value ref!(:vpc)
     end
@@ -155,22 +184,22 @@ _      availability_zone ref!(:vpc_az_3)
     description 'VPC Public CIDR Block, default is 10.0.3.0/24'
   end
 
-  parameters.az1_private_cidr do
-    type 'String'
-    default '10.0.32.0/19'
-    description 'VPC Private CIDR Block, default is 10.0.32.0/19'
-  end
-
-  parameters.az2_private_cidr do
-    type 'String'
-    default '10.0.96.0/19'
-    description 'VPC Private CIDR Block, default is 10.0.96.0/19'
-  end
-
-  parameters.az3_private_cidr do
-    type 'String'
-    default '10.0.160.0/19'
-    description 'VPC Private CIDR Block, default is 10.0.160.0/19'
-  end
+  # parameters.az1_private_cidr do
+  #   type 'String'
+  #   default '10.0.32.0/19'
+  #   description 'VPC Private CIDR Block, default is 10.0.32.0/19'
+  # end
+  #
+  # parameters.az2_private_cidr do
+  #   type 'String'
+  #   default '10.0.96.0/19'
+  #   description 'VPC Private CIDR Block, default is 10.0.96.0/19'
+  # end
+  #
+  # parameters.az3_private_cidr do
+  #   type 'String'
+  #   default '10.0.160.0/19'
+  #   description 'VPC Private CIDR Block, default is 10.0.160.0/19'
+  # end
 
 end
