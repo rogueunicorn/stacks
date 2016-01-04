@@ -1,6 +1,20 @@
 SparkleFormation.new(:hello_phoenix_rds) do
   description 'RDS Template'
 
+  PORT_3306 = {
+    IpProtocol: 'tcp',
+    FromPort:   '3306',
+    ToPort:     '3306',
+    SourceSecurityGroupName: ref!(:app_server_security_group)
+  }
+
+  PORT_5432 = {
+    IpProtocol: 'tcp',
+    FromPort:   '5432',
+    ToPort:     '5432',
+    SourceSecurityGroupName: ref!(:app_server_security_group)
+  }
+
   resources.db_instance do
     type 'AWS::RDS::DBInstance'
     properties do
@@ -11,8 +25,35 @@ SparkleFormation.new(:hello_phoenix_rds) do
       MasterUsername      ref!(:db_user)
       MasterUserPassword  ref!(:db_password)
       AllocatedStorage    ref!(:db_storage)
-      # VPCSecurityGroups   ref!(:db_security_group)
+      VPCSecurityGroups   ref!(:db_security_group)
+      # Tags                [{ Key: 'Name', Value: 'PublicRouteTable' }]
     end
+  end
+
+  resources.db_security_group do
+    type 'AWS::EC2::SecurityGroup'
+    properties do
+      GroupDescription      'Allow database ports'
+      SecurityGroupIngress    [PORT_3306, PORT_5432]
+      Tags                    [{ Key: 'Name', Value: 'AppSecurityGroup' }]
+    end
+  end
+
+  outputs do
+    db_security_group do
+      description 'DB Security Group'
+      value ref!(:db_security_group)
+    end
+  end
+
+  parameters.vpc_id do
+    description 'VPC ID'
+    type 'String'
+  end
+
+  parameters.app_server_security_group do
+    description 'App Server SecurityGroup'
+    type 'String'
   end
 
   parameters.db_name do

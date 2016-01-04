@@ -1,1 +1,5 @@
 db_password: hello_phoenix
+VpcId:
+  stack_output: hello-phoenix-vpc/VpcId
+app_server_security_group:
+  stack_output: hello-phoenix-vpc/app_server_security_group
