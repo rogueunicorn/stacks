@@ -7,7 +7,9 @@ region_defaults:
         environment: production
 stacks:
   us-west-2:
-    hello_phoenix_rds:
-      template: hello_phoenix_rds.rb
+    hello_phoenix_eb:
+      template: hello_phoenix_eb.rb
     hello_phoenix_vpc:
       template: hello_phoenix_vpc.rb
+    hello_phoenix_rds:
+      template: hello_phoenix_rds.rb

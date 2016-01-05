@@ -160,6 +160,18 @@ SparkleFormation.new(:hello_phoenix_vpc) do
       description 'Public Subnet AZ 3'
       value ref!(:public_subnet_az_3)
     end
+    private_subnet_az_1 do
+      description 'Private Subnet AZ 1'
+      value ref!(:private_subnet_az_1)
+    end
+    private_subnet_az_2 do
+      description 'Private Subnet AZ 2'
+      value ref!(:private_subnet_az_2)
+    end
+    private_subnet_az_3 do
+      description 'Private Subnet AZ 3'
+      value ref!(:private_subnet_az_3)
+    end
     internet_gateway do
       description 'Internet Gateway'
       value ref!(:internet_gateway)

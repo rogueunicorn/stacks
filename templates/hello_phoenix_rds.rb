@@ -5,14 +5,14 @@ SparkleFormation.new(:hello_phoenix_rds) do
     IpProtocol: 'tcp',
     FromPort:   '3306',
     ToPort:     '3306',
-    SourceSecurityGroupName: ref!(:app_server_security_group)
+    SourceSecurityGroupId: ref!(:app_server_security_group)
   }
 
   PORT_5432 = {
     IpProtocol: 'tcp',
     FromPort:   '5432',
     ToPort:     '5432',
-    SourceSecurityGroupName: ref!(:app_server_security_group)
+    SourceSecurityGroupId: ref!(:app_server_security_group)
   }
 
   resources.db_instance do
@@ -25,17 +25,28 @@ SparkleFormation.new(:hello_phoenix_rds) do
       MasterUsername      ref!(:db_user)
       MasterUserPassword  ref!(:db_password)
       AllocatedStorage    ref!(:db_storage)
-      VPCSecurityGroups   ref!(:db_security_group)
+      VPCSecurityGroups   [ref!(:db_security_group)]
+      DBSubnetGroupName   ref!(:db_subnet_group)
       # Tags                [{ Key: 'Name', Value: 'PublicRouteTable' }]
+    end
+  end
+
+  resources.db_subnet_group do
+    type 'AWS::RDS::DBSubnetGroup'
+    properties do
+      DBSubnetGroupDescription  'MultiAZ DB Subnet Group'
+      SubnetIds                 [ref!(:private_subnet_az_1), ref!(:private_subnet_az_2), ref!(:private_subnet_az_3)]
+      Tags                      [{ Key: 'Name', Value: 'DBSubnetGroup' }]
     end
   end
 
   resources.db_security_group do
     type 'AWS::EC2::SecurityGroup'
     properties do
-      GroupDescription      'Allow database ports'
-      SecurityGroupIngress    [PORT_3306, PORT_5432]
-      Tags                    [{ Key: 'Name', Value: 'AppSecurityGroup' }]
+      VpcId                   ref!(:vpc_id)
+      Tags                    [{ Key: 'Name', Value: 'DBSecurityGroup' }]
+      GroupDescription      'Security Group for RDS DB Instances'
+      # SecurityGroupIngress    [PORT_3306, PORT_5432]
     end
   end
 
@@ -44,10 +55,29 @@ SparkleFormation.new(:hello_phoenix_rds) do
       description 'DB Security Group'
       value ref!(:db_security_group)
     end
+    db_subnet_group do
+      description 'DB Subnet Group'
+      value ref!(:db_subnet_group)
+    end
   end
 
   parameters.vpc_id do
     description 'VPC ID'
+    type        'AWS::EC2::VPC::Id'
+  end
+
+  parameters.private_subnet_az_1 do
+    description 'Private Subnet AZ 1'
+    type 'String'
+  end
+
+  parameters.private_subnet_az_2 do
+    description 'Private Subnet AZ 2'
+    type 'String'
+  end
+
+  parameters.private_subnet_az_3 do
+    description 'Private Subnet AZ 3'
     type 'String'
   end
 
@@ -57,9 +87,12 @@ SparkleFormation.new(:hello_phoenix_rds) do
   end
 
   parameters.db_name do
-    description 'DB Name'
-    type        'String'
-    default     'Postgres01'
+    description     'DB Name'
+    type            'String'
+    default         'Postgres01'
+    min_length      '1'
+    max_length      '64'
+    allowed_pattern '[a-zA-Z][a-zA-Z0-9]*'
   end
 
   parameters.db_engine do

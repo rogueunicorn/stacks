@@ -1,0 +1,6 @@
+application_name: 'Hello Phoenix'
+cname_prefix: 'hello-phoenix-production'
+environment_name: 'production'
+solution_stack_name: '64bit Amazon Linux 2015.09 v2.0.4 running Multi-container Docker 1.7.1 (Generic)'
+VpcId:
+  stack_output: hello-phoenix-vpc/VpcId
