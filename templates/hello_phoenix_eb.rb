@@ -8,17 +8,17 @@ SparkleFormation.new(:hello_phoenix_eb) do
     end
   end
 
-  # resources.eb_environment do
-  #   type 'AWS::ElasticBeanstalk::Environment'
-  #   properties do
-  #     ApplicationName   ref!(:application_name)
-  #     CNAMEPrefix       ref!(:cname_prefix)
-  #     EnvironmentName   ref!(:environment_name)
-  #     SolutionStackName ref!(:solution_stack_name)
-  #     VersionLabel      '0.0.0'
-  #     Tags              []
-  #   end
-  # end
+  resources.eb_environment do
+    type 'AWS::ElasticBeanstalk::Environment'
+    properties do
+      ApplicationName   ref!(:application_name)
+      CNAMEPrefix       ref!(:cname_prefix)
+      EnvironmentName   ref!(:environment_name)
+      SolutionStackName ref!(:solution_stack_name)
+      # OptionSettings    [{ DATABASE_URL: '', SECRET_KEY_BASE: '' } ]
+      Tags              []
+    end
+  end
 
   outputs do
 
