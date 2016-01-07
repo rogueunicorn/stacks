@@ -4,3 +4,15 @@ environment_name: 'production'
 solution_stack_name: '64bit Amazon Linux 2015.09 v2.0.4 running Multi-container Docker 1.7.1 (Generic)'
 VpcId:
   stack_output: hello-phoenix-vpc/VpcId
+public_subnet_az_1:
+  stack_output: hello-phoenix-vpc/public_subnet_az_1
+public_subnet_az_2:
+  stack_output: hello-phoenix-vpc/public_subnet_az_2
+public_subnet_az_3:
+  stack_output: hello-phoenix-vpc/public_subnet_az_3
+private_subnet_az_1:
+  stack_output: hello-phoenix-vpc/private_subnet_az_1
+private_subnet_az_2:
+  stack_output: hello-phoenix-vpc/private_subnet_az_2
+private_subnet_az_3:
+  stack_output: hello-phoenix-vpc/private_subnet_az_3
