@@ -81,13 +81,18 @@ SparkleFormation.new(:hello_phoenix_eb) do
         {
           Namespace:   'aws:ec2:vpc',
           OptionName:  'Subnets',
-          Value:        join!(ref!(:public_subnet_az_1), ref!(:public_subnet_az_1), ref!(:public_subnet_az_1), {options: {delimiter: ','} })
+          Value:        join!(ref!(:private_subnet_az_1), ref!(:private_subnet_az_2), ref!(:private_subnet_az_3), {options: {delimiter: ','} })
         },
         {
           Namespace:   'aws:ec2:vpc',
           OptionName:  'ELBSubnets',
           Value:        join!(ref!(:public_subnet_az_1), ref!(:public_subnet_az_2), ref!(:public_subnet_az_3), {options: {delimiter: ','}})
         },
+        {
+          Namespace:   'aws:ec2:vpc',
+          OptionName:  'AssociatePublicIpAddress',
+          Value:       'true'
+        }
       ]
       Tags              []
     end

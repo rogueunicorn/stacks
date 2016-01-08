@@ -36,6 +36,56 @@ SparkleFormation.new(:hello_phoenix_vpc) do
     end
   end
 
+  resources.public_route_table do
+    type 'AWS::EC2::RouteTable'
+    properties do
+      VpcId   ref!(:vpc)
+      Tags    [{ Key: 'Name', Value: 'PublicRouteTable' }]
+    end
+  end
+
+  resources.public_route do
+    type 'AWS::EC2::Route'
+    depends_on 'InternetGateway'
+    properties do
+      RouteTableId          ref!(:public_route_table)
+      GatewayId             ref!(:internet_gateway)
+      DestinationCidrBlock  "0.0.0.0/0"
+    end
+  end
+
+  resources.public_route_table do
+    type 'AWS::EC2::RouteTable'
+    properties do
+      VpcId   ref!(:vpc)
+      Tags    [{ Key: 'Name', Value: 'PublicRouteTable' }]
+    end
+  end
+
+  resources.subnet_route_table_association_1 do
+    type 'AWS::EC2::SubnetRouteTableAssociation'
+    properties do
+      RouteTableId ref!(:public_route_table)
+      SubnetId ref!(:public_subnet_az_1)
+    end
+  end
+
+  resources.subnet_route_table_association_2 do
+    type 'AWS::EC2::SubnetRouteTableAssociation'
+    properties do
+      RouteTableId ref!(:public_route_table)
+      SubnetId ref!(:public_subnet_az_2)
+    end
+  end
+
+  resources.subnet_route_table_association_3 do
+    type 'AWS::EC2::SubnetRouteTableAssociation'
+    properties do
+      RouteTableId ref!(:public_route_table)
+      SubnetId ref!(:public_subnet_az_3)
+    end
+  end
+
   resources.public_subnet_az_1 do
     type 'AWS::EC2::Subnet'
     properties do
@@ -114,24 +164,6 @@ SparkleFormation.new(:hello_phoenix_vpc) do
     end
   end
 
-  resources.public_route_table do
-    type 'AWS::EC2::RouteTable'
-    properties do
-      VpcId   ref!(:vpc)
-      Tags    [{ Key: 'Name', Value: 'PublicRouteTable' }]
-    end
-  end
-
-  resources.public_route do
-    type 'AWS::EC2::Route'
-    depends_on 'InternetGateway'
-    properties do
-      RouteTableId          ref!(:public_route_table)
-      GatewayId             ref!(:internet_gateway)
-      DestinationCidrBlock  "0.0.0.0/0"
-    end
-  end
-
   resources.app_server_security_group do
     type 'AWS::EC2::SecurityGroup'
     properties do
@@ -142,11 +174,14 @@ SparkleFormation.new(:hello_phoenix_vpc) do
     end
   end
 
-
   outputs do
     VpcId do
       description 'VPC ID'
       value ref!(:vpc)
+    end
+    public_route_table do
+      description 'Public RouteTable'
+      value ref!(:public_route_table)
     end
     public_subnet_az_1 do
       description 'Public Subnet AZ 1'
