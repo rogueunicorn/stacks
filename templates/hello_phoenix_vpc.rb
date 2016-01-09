@@ -54,11 +54,11 @@ SparkleFormation.new(:hello_phoenix_vpc) do
     end
   end
 
-  resources.public_route_table do
+  resources.private_route_table do
     type 'AWS::EC2::RouteTable'
     properties do
       VpcId   ref!(:vpc)
-      Tags    [{ Key: 'Name', Value: 'PublicRouteTable' }]
+      Tags    [{ Key: 'Name', Value: 'PrivateRouteTable' }]
     end
   end
 
