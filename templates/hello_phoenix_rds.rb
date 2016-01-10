@@ -26,8 +26,7 @@ SparkleFormation.new(:hello_phoenix_rds) do
       MasterUserPassword  ref!(:db_password)
       AllocatedStorage    ref!(:db_storage)
       VPCSecurityGroups   [ref!(:db_security_group)]
-      DBSubnetGroupName   ref!(:db_subnet_group)
-      # Tags                [{ Key: 'Name', Value: 'PublicRouteTable' }]
+      DBSubnetGroupName   ref!(:db_subnet_group)      
     end
   end
 

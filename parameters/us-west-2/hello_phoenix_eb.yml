@@ -1,7 +1,10 @@
 application_name: 'Hello Phoenix'
+source_bundle_bucket: 'elasticbeanstalk-us-west-2-hello-phoenix'
+source_bundle_key: 'hello-phoenix.zip'
 cname_prefix: 'hello-phoenix-production'
 environment_name: 'production'
-solution_stack_name: '64bit Amazon Linux 2015.09 v2.0.4 running Multi-container Docker 1.7.1 (Generic)'
+solution_stack_name: '64bit Amazon Linux 2015.09 v2.0.4 running Docker 1.7.1'
+# solution_stack_name: '64bit Amazon Linux 2015.09 v2.0.4 running Multi-container Docker 1.7.1 (Generic)'
 VpcId:
   stack_output: hello-phoenix-vpc/VpcId
 public_subnet_az_1:

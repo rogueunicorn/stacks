@@ -1,10 +1,35 @@
 SparkleFormation.new(:hello_phoenix_eb) do
   description 'Elastic Beanstalk Template'
 
+  policy = {
+    Version: '2012-10-17',
+    Statement: [
+      {
+        Effect: 'Allow',
+        Action: [
+          'ecs:StartTask',
+          'ecs:StopTask',
+          'ecs:RegisterContainerInstance',
+          'ecs:DeregisterContainerInstance',
+          'ecs:DescribeContainerInstances',
+          'ecs:DiscoverPollEndpoint',
+          'ecs:Submit*',
+          'ecs:Poll'
+          ],
+        Resource: '[\'*\']'
+      },
+      {
+        Effect: 'Allow',
+        Action: 's3:PutObject',
+        Resource: 'arn:aws:s3:::elasticbeanstalk-*/resources/environments/logs/*'
+      }
+    ]
+  }
   parameters.vpc_id do
     description 'VPC ID'
     type        'AWS::EC2::VPC::Id'
   end
+
 
   parameters.public_subnet_az_1 do
     description 'Public Subnet AZ 1'
@@ -41,6 +66,16 @@ SparkleFormation.new(:hello_phoenix_eb) do
     type        'String'
   end
 
+  parameters.source_bundle_bucket do
+    description 'Source Bundle S3 Bucket'
+    type        'String'
+  end
+
+  parameters.source_bundle_key do
+    description 'Source Bundle S3 Key'
+    type        'String'
+  end
+
   parameters.cname_prefix do
     description 'CName Prefix'
     type        'String'
@@ -56,41 +91,21 @@ SparkleFormation.new(:hello_phoenix_eb) do
     type        'String'
   end
 
-  resources.eb_role do
-  end
+  # resources.eb_role do
+  #   type 'Type": "AWS::IAM::Role'
+  #   properties do
+  #
+  #   end
+  # end
 
-  resources.eb_policy do
-    type 'Type": "AWS::IAM::Policy'
-    properties do
-      Groups ''
-      PolicyName 'ElasticBeanstalkPolicy'
-      PolicyDocument [{
-        Version: '2012-10-17',
-        Statement: [
-          {
-            Effect: 'Allow',
-            Action: [
-              'ecs:StartTask',
-              'ecs:StopTask',
-              'ecs:RegisterContainerInstance',
-              'ecs:DeregisterContainerInstance',
-              'ecs:DescribeContainerInstances',
-              'ecs:DiscoverPollEndpoint',
-              'ecs:Submit*',
-              'ecs:Poll'
-              ],
-            Resource: '[\'*\']'
-          },
-          {
-            Effect: 'Allow',
-            Action: 's3:PutObject',
-            Resource: 'arn:aws:s3:::elasticbeanstalk-*/resources/environments/logs/*'
-          }
-        ]
-      }]
-      Roles ref!(:eb_role)
-    end
-  end
+  # resources.eb_policy do
+  #   type 'Type": "AWS::IAM::Policy'
+  #   properties do
+  #     PolicyName 'ElasticBeanstalkPolicy'
+  #     PolicyDocument policy
+  #     Roles ref!(:eb_role)
+  #   end
+  # end
 
   resources.eb_application do
     type 'AWS::ElasticBeanstalk::Application'
@@ -130,6 +145,18 @@ SparkleFormation.new(:hello_phoenix_eb) do
         }
       ]
       Tags              []
+    end
+  end
+
+  resources.eb_application_version do
+    type 'AWS::ElasticBeanstalk::ApplicationVersion'
+    depends_on 'EbEnvironment'
+    properties do
+      ApplicationName ref!(:application_name)
+      SourceBundle do
+        S3Bucket  ref!(:source_bundle_bucket)
+        S3Key     ref!(:source_bundle_bucket)
+      end
     end
   end
 
