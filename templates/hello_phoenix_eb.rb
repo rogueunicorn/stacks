@@ -1,7 +1,7 @@
 SparkleFormation.new(:hello_phoenix_eb) do
   description 'Elastic Beanstalk Template'
 
-  policy = {
+  multi_container_policy = {
     Version: '2012-10-17',
     Statement: [
       {
@@ -25,6 +25,18 @@ SparkleFormation.new(:hello_phoenix_eb) do
       }
     ]
   }
+
+  policy = {
+    Version: "2012-10-17",
+    Statement: [
+      {
+        Effect: "Allow",
+        Action: "s3:*",
+        Resource: "*"
+      }
+    ]
+  }
+
   parameters.vpc_id do
     description 'VPC ID'
     type        'AWS::EC2::VPC::Id'
@@ -107,6 +119,16 @@ SparkleFormation.new(:hello_phoenix_eb) do
   #   end
   # end
 
+  resources.eb_policy do
+    type 'AWS::IAM::ManagedPolicy'
+    properties do
+      Description     'ElasticBeanstalk S3 Policy'
+      Path            '/'
+      PolicyDocument  policy
+      Roles           ['aws-elasticbeanstalk-ec2-role', 'aws-elasticbeanstalk-service-role']
+    end
+  end
+
   resources.eb_application do
     type 'AWS::ElasticBeanstalk::Application'
     properties do
@@ -143,6 +165,7 @@ SparkleFormation.new(:hello_phoenix_eb) do
           OptionName:  'AssociatePublicIpAddress',
           Value:       'true'
         }
+
       ]
       Tags              []
     end
