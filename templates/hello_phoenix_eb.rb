@@ -1,3 +1,4 @@
+# https://s3-us-west-2.amazonaws.com/elasticbeanstalk-us-west-2-hello-phoenix/docker-singlecontainer-v1.zip
 SparkleFormation.new(:hello_phoenix_eb) do
   description 'Elastic Beanstalk Template'
 
@@ -31,8 +32,8 @@ SparkleFormation.new(:hello_phoenix_eb) do
     Statement: [
       {
         Effect: "Allow",
-        Action: "s3:*",
-        Resource: "*"
+        Action: "s3:GetObject",
+        Resource: ref!(:s3_bucket_arn)
       }
     ]
   }
@@ -41,7 +42,6 @@ SparkleFormation.new(:hello_phoenix_eb) do
     description 'VPC ID'
     type        'AWS::EC2::VPC::Id'
   end
-
 
   parameters.public_subnet_az_1 do
     description 'Public Subnet AZ 1'
@@ -103,6 +103,13 @@ SparkleFormation.new(:hello_phoenix_eb) do
     type        'String'
   end
 
+  parameters.s3_bucket_arn do
+    description 'Environment Name'
+    type        'String'
+  end
+
+
+
   # resources.eb_role do
   #   type 'Type": "AWS::IAM::Role'
   #   properties do
@@ -153,11 +160,14 @@ SparkleFormation.new(:hello_phoenix_eb) do
         {
           Namespace:   'aws:ec2:vpc',
           OptionName:  'Subnets',
-          Value:        join!(ref!(:private_subnet_az_1), ref!(:private_subnet_az_2), ref!(:private_subnet_az_3), {options: {delimiter: ','} })
+          # Value:        ref!(:public_subnet_az_1)
+          # Value:        join!(ref!(:private_subnet_az_1), ref!(:private_subnet_az_2), ref!(:private_subnet_az_3), {options: {delimiter: ','} })
+          Value:        join!(ref!(:public_subnet_az_1), ref!(:public_subnet_az_2), ref!(:public_subnet_az_3), {options: {delimiter: ','}})
         },
         {
           Namespace:   'aws:ec2:vpc',
           OptionName:  'ELBSubnets',
+          # Value:        ref!(:public_subnet_az_1)
           Value:        join!(ref!(:public_subnet_az_1), ref!(:public_subnet_az_2), ref!(:public_subnet_az_3), {options: {delimiter: ','}})
         },
         {
@@ -165,7 +175,6 @@ SparkleFormation.new(:hello_phoenix_eb) do
           OptionName:  'AssociatePublicIpAddress',
           Value:       'true'
         }
-
       ]
       Tags              []
     end
@@ -178,7 +187,7 @@ SparkleFormation.new(:hello_phoenix_eb) do
       ApplicationName ref!(:application_name)
       SourceBundle do
         S3Bucket  ref!(:source_bundle_bucket)
-        S3Key     ref!(:source_bundle_bucket)
+        S3Key     ref!(:source_bundle_key)
       end
     end
   end
