@@ -108,24 +108,6 @@ SparkleFormation.new(:hello_phoenix_eb) do
     type        'String'
   end
 
-
-
-  # resources.eb_role do
-  #   type 'Type": "AWS::IAM::Role'
-  #   properties do
-  #
-  #   end
-  # end
-
-  # resources.eb_policy do
-  #   type 'Type": "AWS::IAM::Policy'
-  #   properties do
-  #     PolicyName 'ElasticBeanstalkPolicy'
-  #     PolicyDocument policy
-  #     Roles ref!(:eb_role)
-  #   end
-  # end
-
   resources.eb_policy do
     type 'AWS::IAM::ManagedPolicy'
     properties do
@@ -145,11 +127,21 @@ SparkleFormation.new(:hello_phoenix_eb) do
 
   resources.eb_environment do
     type 'AWS::ElasticBeanstalk::Environment'
-    depends_on 'EbApplication'
+    depends_on ['EbApplication','EbConfigTemplate']
     properties do
       ApplicationName   ref!(:application_name)
       CNAMEPrefix       ref!(:cname_prefix)
       EnvironmentName   ref!(:environment_name)
+      TemplateName      ref!(:eb_config_template)
+      # Tags            [{ Key: 'Name', Value: 'DBSubnetGroup' }]
+    end
+  end
+
+  resources.eb_config_template do
+    type 'AWS::ElasticBeanstalk::ConfigurationTemplate'
+    depends_on 'EbApplication'
+    properties do
+      ApplicationName   ref!(:application_name)
       SolutionStackName ref!(:solution_stack_name)
       OptionSettings    [
         {
@@ -160,14 +152,11 @@ SparkleFormation.new(:hello_phoenix_eb) do
         {
           Namespace:   'aws:ec2:vpc',
           OptionName:  'Subnets',
-          # Value:        ref!(:public_subnet_az_1)
-          # Value:        join!(ref!(:private_subnet_az_1), ref!(:private_subnet_az_2), ref!(:private_subnet_az_3), {options: {delimiter: ','} })
           Value:        join!(ref!(:public_subnet_az_1), ref!(:public_subnet_az_2), ref!(:public_subnet_az_3), {options: {delimiter: ','}})
         },
         {
           Namespace:   'aws:ec2:vpc',
           OptionName:  'ELBSubnets',
-          # Value:        ref!(:public_subnet_az_1)
           Value:        join!(ref!(:public_subnet_az_1), ref!(:public_subnet_az_2), ref!(:public_subnet_az_3), {options: {delimiter: ','}})
         },
         {
@@ -176,19 +165,6 @@ SparkleFormation.new(:hello_phoenix_eb) do
           Value:       'true'
         }
       ]
-      Tags              []
-    end
-  end
-
-  resources.eb_application_version do
-    type 'AWS::ElasticBeanstalk::ApplicationVersion'
-    depends_on 'EbEnvironment'
-    properties do
-      ApplicationName ref!(:application_name)
-      SourceBundle do
-        S3Bucket  ref!(:source_bundle_bucket)
-        S3Key     ref!(:source_bundle_key)
-      end
     end
   end
 
