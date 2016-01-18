@@ -78,16 +78,6 @@ SparkleFormation.new(:hello_phoenix_eb) do
     type        'String'
   end
 
-  parameters.source_bundle_bucket do
-    description 'Source Bundle S3 Bucket'
-    type        'String'
-  end
-
-  parameters.source_bundle_key do
-    description 'Source Bundle S3 Key'
-    type        'String'
-  end
-
   parameters.cname_prefix do
     description 'CName Prefix'
     type        'String'
@@ -106,6 +96,12 @@ SparkleFormation.new(:hello_phoenix_eb) do
   parameters.s3_bucket_arn do
     description 'Environment Name'
     type        'String'
+  end
+
+  parameters.instance_type do
+    description 'InstanceType'
+    type        'String'
+    default     't2.nano'
   end
 
   resources.eb_policy do
@@ -144,6 +140,26 @@ SparkleFormation.new(:hello_phoenix_eb) do
       ApplicationName   ref!(:application_name)
       SolutionStackName ref!(:solution_stack_name)
       OptionSettings    [
+        {
+          Namespace:  'aws:autoscaling:launchconfiguration',
+          OptionName: 'InstanceType',
+          Value:      ref!(:instance_type)
+        },
+        {
+          Namespace:  'aws:autoscaling:launchconfiguration',
+          OptionName: 'IamInstanceProfile',
+          Value:      'aws-elasticbeanstalk-ec2-role'
+        },
+        {
+          Namespace:  'aws:autoscaling:asg',
+          OptionName: 'MinSize',
+          Value:      2
+        },
+        {
+          Namespace:  'aws:autoscaling:asg',
+          OptionName: 'MaxSize',
+          Value:      4
+        },
         {
           Namespace:    'aws:ec2:vpc',
           OptionName:  'VPCId',
