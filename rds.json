@@ -1,0 +1,18 @@
+{
+    "StackName": "RDS01",
+    "Parameters": [
+        {
+            "ParameterKey": "DbPassword",
+            "ParameterValue": "ad@#alshd(*^%)"
+        }
+    ],
+    "Capabilities": [
+        "CAPABILITY_IAM"
+    ],
+    "Tags": [
+        {
+            "Key": "Application",
+            "Value": "Hello Phoenix"
+        }
+    ]
+}

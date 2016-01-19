@@ -1,5 +1,6 @@
 {
     "StackName": "VPC01",
+    "TemplateUrl": "https://s3-us-west-2.amazonaws.com/micromanuals/cloudformation/vpc.cf.json",
     "Parameters": [
         {
             "ParameterKey": "VpcAz1",

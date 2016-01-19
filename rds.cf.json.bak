@@ -41,9 +41,6 @@
       "Properties": {
         "DBSubnetGroupDescription": "MultiAZ DB Subnet Group",
         "SubnetIds": [
-          { "Fn::GetAtt": [ "NetworkInfo", "PrivateSubnetAz1" ] },
-          { "Fn::GetAtt": [ "NetworkInfo", "PrivateSubnetAz2" ] },
-          { "Fn::GetAtt": [ "NetworkInfo", "PrivateSubnetAz3" ] }
         ],
         "Tags": [
           {
@@ -57,7 +54,7 @@
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
         "VpcId": {
-          "Fn::GetAtt": [ "NetworkInfo", "VpcId" ]
+          "Ref": "VpcId"
         },
         "Tags": [
           {
@@ -68,7 +65,7 @@
         "GroupDescription": "Security Group for RDS DB Instances"
       }
     },
-    "NetworkInfo": {
+    "SubnetInfo": {
       "Type": "Custom::NetworkInfo",
       "Properties": {
         "ServiceToken": { "Fn::GetAtt" : ["LookupStackOutputs", "Arn"] },
@@ -83,12 +80,8 @@
         "Handler": "index.handler",
         "Role": { "Fn::GetAtt" : ["LambdaExecutionRole", "Arn"] },
         "Code": {
-          "S3Bucket": {
-            "Ref": "LambdaS3Bucket"
-          },
-          "S3Key": {
-            "Ref": "LambdaS3Key"
-          }
+          "S3Bucket" : "micromanuals",
+          "S3Key" : "cloudformation/stack-lookup.lambda.js"
         },
         "Runtime": "nodejs",
         "Timeout": "30"
@@ -126,15 +119,32 @@
     }
   },
   "Outputs": {
+    "DbSecurityGroup": {
+      "Description": "DB Security Group",
+      "Value": {
+        "Ref": "DbSecurityGroup"
+      }
+    },
+    "DbSubnetGroup": {
+      "Description": "DB Subnet Group",
+      "Value": {
+        "Ref": "DbSubnetGroup"
+      }
+    }
   },
   "Parameters": {
+    "VpcId": {
+      "Description": "Vpc ID",
+      "Type": "AWS::EC2::VPC::Id",
+      "Default": "vpc-ed949488"
+    },
     "NetworkStack": {
       "Description": "Name of an active CloudFormation stack that contains the networking resources, such as the subnet and security group, that will be used in this stack.",
       "Type": "String",
       "MinLength" : 1,
       "MaxLength" : 255,
       "AllowedPattern" : "^[a-zA-Z][-a-zA-Z0-9]*$",
-      "Default" : "hello-phoenix-vpc"
+      "Default" : "VPC01"
     },
     "DbName": {
       "Description": "DB Name",
@@ -177,16 +187,6 @@
       "Description": "DB AllocatedStorage",
       "Type": "Number",
       "Default": 5
-    },
-    "LambdaS3Bucket": {
-      "Description": "S3 Bucket containing AWS Lambda Resource Lookup Function",
-      "Type": "String",
-      "Default": "micromanuals"
-    },
-    "LambdaS3Key": {
-      "Description": "S3 Key containing AWS Lambda Resource Lookup Function",
-      "Type": "String",
-      "Default": "cloudformation/lookup.js.zip"
     }
   }
 }
