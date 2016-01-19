@@ -79,8 +79,9 @@
     },
     "LookupStackOutputs": {
       "Type": "AWS::Lambda::Function",
+      "Description": "Function to perform cross-stack resource lookup",
       "Properties": {
-        "Handler": "index.handler",
+        "Handler": "lookup.handler",
         "Role": { "Fn::GetAtt" : ["LambdaExecutionRole", "Arn"] },
         "Code": {
           "S3Bucket": {
