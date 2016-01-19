@@ -38,6 +38,12 @@ SparkleFormation.new(:hello_phoenix_eb) do
     ]
   }
 
+  parameters.healthcheck_url do
+    description 'Healthcheck URL'
+    type        'String'
+    default     '/'
+  end
+
   parameters.vpc_id do
     description 'VPC ID'
     type        'AWS::EC2::VPC::Id'
@@ -153,16 +159,26 @@ SparkleFormation.new(:hello_phoenix_eb) do
         {
           Namespace:  'aws:autoscaling:asg',
           OptionName: 'MinSize',
-          Value:      2
+          Value:      1
         },
         {
           Namespace:  'aws:autoscaling:asg',
           OptionName: 'MaxSize',
           Value:      4
         },
+        # {
+        #   Namespace:  'aws:autoscaling:asg',
+        #   OptionName: 'Custom Availability Zones',
+        #   Value:      ''
+        # },
+        {
+          Namespace:    'aws:elasticbeanstalk:application',
+          OptionName:   'Application Healthcheck URL',
+          Value:        ref!(:healthcheck_url)
+        },
         {
           Namespace:    'aws:ec2:vpc',
-          OptionName:  'VPCId',
+          OptionName:   'VPCId',
           Value:        ref!(:vpc_id)
         },
         {
@@ -180,6 +196,11 @@ SparkleFormation.new(:hello_phoenix_eb) do
           OptionName:  'AssociatePublicIpAddress',
           Value:       'true'
         }
+        # {
+        #   Namespace:   'aws:elasticbeanstalk:hostmanager',
+        #   OptionName:  'LogPublicationControl',
+        #   Value:       ''
+        # }
       ]
     end
   end

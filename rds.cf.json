@@ -1,0 +1,157 @@
+{
+    "TemplateBody": {
+        "Outputs": {
+            "DbSecurityGroup": {
+                "Description": "DB Security Group", 
+                "Value": {
+                    "Ref": "DbSecurityGroup"
+                }
+            }, 
+            "DbSubnetGroup": {
+                "Description": "DB Subnet Group", 
+                "Value": {
+                    "Ref": "DbSubnetGroup"
+                }
+            }
+        }, 
+        "Parameters": {
+            "VpcId": {
+                "Type": "AWS::EC2::VPC::Id", 
+                "Description": "VPC ID"
+            }, 
+            "PrivateSubnetAz1": {
+                "Type": "String", 
+                "Description": "Private Subnet AZ 1"
+            }, 
+            "PrivateSubnetAz3": {
+                "Type": "String", 
+                "Description": "Private Subnet AZ 3"
+            }, 
+            "PrivateSubnetAz2": {
+                "Type": "String", 
+                "Description": "Private Subnet AZ 2"
+            }, 
+            "DbStorage": {
+                "Default": 5, 
+                "Type": "Number", 
+                "Description": "DB AllocatedStorage"
+            }, 
+            "AppServerSecurityGroup": {
+                "Type": "String", 
+                "Description": "App Server SecurityGroup"
+            }, 
+            "DbIsMultiAz": {
+                "Default": "false", 
+                "Type": "String", 
+                "Description": "Specifies if MultiAZ DB. Default is false", 
+                "AllowedValues": [
+                    "true", 
+                    "false"
+                ]
+            }, 
+            "DbPassword": {
+                "NoEcho": "true", 
+                "Type": "String", 
+                "Description": "DB MasterUserPassword"
+            }, 
+            "DbEngine": {
+                "Default": "postgres", 
+                "Type": "String", 
+                "Description": "DB Engine"
+            }, 
+            "DbUser": {
+                "Default": "postgres", 
+                "Type": "String", 
+                "Description": "DB MasterUsername"
+            }, 
+            "DbInstanceClass": {
+                "Default": "db.t1.micro", 
+                "Type": "String", 
+                "Description": "DB instance type, default is db.m1.micro"
+            }, 
+            "DbName": {
+                "Description": "DB Name", 
+                "Default": "Postgres01", 
+                "MinLength": "1", 
+                "AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*", 
+                "MaxLength": "64", 
+                "Type": "String"
+            }
+        }, 
+        "Description": "RDS Template", 
+        "Resources": {
+            "DbSecurityGroup": {
+                "Type": "AWS::EC2::SecurityGroup", 
+                "Properties": {
+                    "VpcId": {
+                        "Ref": "VpcId"
+                    }, 
+                    "GroupDescription": "Security Group for RDS DB Instances", 
+                    "Tags": [
+                        {
+                            "Value": "DBSecurityGroup", 
+                            "Key": "Name"
+                        }
+                    ]
+                }
+            }, 
+            "DbSubnetGroup": {
+                "Type": "AWS::RDS::DBSubnetGroup", 
+                "Properties": {
+                    "SubnetIds": [
+                        {
+                            "Ref": "PrivateSubnetAz1"
+                        }, 
+                        {
+                            "Ref": "PrivateSubnetAz2"
+                        }, 
+                        {
+                            "Ref": "PrivateSubnetAz3"
+                        }
+                    ], 
+                    "DBSubnetGroupDescription": "MultiAZ DB Subnet Group", 
+                    "Tags": [
+                        {
+                            "Value": "DBSubnetGroup", 
+                            "Key": "Name"
+                        }
+                    ]
+                }
+            }, 
+            "DbInstance": {
+                "Type": "AWS::RDS::DBInstance", 
+                "Properties": {
+                    "Engine": {
+                        "Ref": "DbEngine"
+                    }, 
+                    "MultiAZ": {
+                        "Ref": "DbIsMultiAz"
+                    }, 
+                    "MasterUsername": {
+                        "Ref": "DbUser"
+                    }, 
+                    "MasterUserPassword": {
+                        "Ref": "DbPassword"
+                    }, 
+                    "VPCSecurityGroups": [
+                        {
+                            "Ref": "DbSecurityGroup"
+                        }
+                    ], 
+                    "AllocatedStorage": {
+                        "Ref": "DbStorage"
+                    }, 
+                    "DBInstanceClass": {
+                        "Ref": "DbInstanceClass"
+                    }, 
+                    "DBSubnetGroupName": {
+                        "Ref": "DbSubnetGroup"
+                    }, 
+                    "DBName": {
+                        "Ref": "DbName"
+                    }
+                }
+            }
+        }
+    }
+}

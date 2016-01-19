@@ -1,0 +1,214 @@
+{
+    "TemplateBody": {
+        "Resources": {
+            "EbApplication": {
+                "Type": "AWS::ElasticBeanstalk::Application", 
+                "Properties": {
+                    "ApplicationName": {
+                        "Ref": "ApplicationName"
+                    }
+                }
+            }, 
+            "EbConfigTemplate": {
+                "Type": "AWS::ElasticBeanstalk::ConfigurationTemplate", 
+                "Properties": {
+                    "ApplicationName": {
+                        "Ref": "ApplicationName"
+                    }, 
+                    "OptionSettings": [
+                        {
+                            "OptionName": "InstanceType", 
+                            "Namespace": "aws:autoscaling:launchconfiguration", 
+                            "Value": {
+                                "Ref": "InstanceType"
+                            }
+                        }, 
+                        {
+                            "OptionName": "IamInstanceProfile", 
+                            "Namespace": "aws:autoscaling:launchconfiguration", 
+                            "Value": "aws-elasticbeanstalk-ec2-role"
+                        }, 
+                        {
+                            "OptionName": "MinSize", 
+                            "Namespace": "aws:autoscaling:asg", 
+                            "Value": 1
+                        }, 
+                        {
+                            "OptionName": "MaxSize", 
+                            "Namespace": "aws:autoscaling:asg", 
+                            "Value": 4
+                        }, 
+                        {
+                            "OptionName": "Application Healthcheck URL", 
+                            "Namespace": "aws:elasticbeanstalk:application", 
+                            "Value": {
+                                "Ref": "HealthcheckUrl"
+                            }
+                        }, 
+                        {
+                            "OptionName": "VPCId", 
+                            "Namespace": "aws:ec2:vpc", 
+                            "Value": {
+                                "Ref": "VpcId"
+                            }
+                        }, 
+                        {
+                            "OptionName": "Subnets", 
+                            "Namespace": "aws:ec2:vpc", 
+                            "Value": {
+                                "Fn::Join": [
+                                    ",", 
+                                    [
+                                        {
+                                            "Ref": "PublicSubnetAz1"
+                                        }, 
+                                        {
+                                            "Ref": "PublicSubnetAz2"
+                                        }, 
+                                        {
+                                            "Ref": "PublicSubnetAz3"
+                                        }
+                                    ]
+                                ]
+                            }
+                        }, 
+                        {
+                            "OptionName": "ELBSubnets", 
+                            "Namespace": "aws:ec2:vpc", 
+                            "Value": {
+                                "Fn::Join": [
+                                    ",", 
+                                    [
+                                        {
+                                            "Ref": "PublicSubnetAz1"
+                                        }, 
+                                        {
+                                            "Ref": "PublicSubnetAz2"
+                                        }, 
+                                        {
+                                            "Ref": "PublicSubnetAz3"
+                                        }
+                                    ]
+                                ]
+                            }
+                        }, 
+                        {
+                            "OptionName": "AssociatePublicIpAddress", 
+                            "Namespace": "aws:ec2:vpc", 
+                            "Value": "true"
+                        }
+                    ], 
+                    "SolutionStackName": {
+                        "Ref": "SolutionStackName"
+                    }
+                }, 
+                "DependsOn": "EbApplication"
+            }, 
+            "EbPolicy": {
+                "Type": "AWS::IAM::ManagedPolicy", 
+                "Properties": {
+                    "Path": "/", 
+                    "PolicyDocument": {
+                        "Version": "2012-10-17", 
+                        "Statement": [
+                            {
+                                "Action": "s3:GetObject", 
+                                "Resource": {
+                                    "Ref": "S3BucketArn"
+                                }, 
+                                "Effect": "Allow"
+                            }
+                        ]
+                    }, 
+                    "Description": "ElasticBeanstalk S3 Policy", 
+                    "Roles": [
+                        "aws-elasticbeanstalk-ec2-role", 
+                        "aws-elasticbeanstalk-service-role"
+                    ]
+                }
+            }, 
+            "EbEnvironment": {
+                "Type": "AWS::ElasticBeanstalk::Environment", 
+                "Properties": {
+                    "ApplicationName": {
+                        "Ref": "ApplicationName"
+                    }, 
+                    "CNAMEPrefix": {
+                        "Ref": "CnamePrefix"
+                    }, 
+                    "TemplateName": {
+                        "Ref": "EbConfigTemplate"
+                    }, 
+                    "EnvironmentName": {
+                        "Ref": "EnvironmentName"
+                    }
+                }, 
+                "DependsOn": [
+                    "EbApplication", 
+                    "EbConfigTemplate"
+                ]
+            }
+        }, 
+        "Description": "Elastic Beanstalk Template", 
+        "Parameters": {
+            "ApplicationName": {
+                "Type": "String", 
+                "Description": "Application Name"
+            }, 
+            "EnvironmentName": {
+                "Type": "String", 
+                "Description": "Environment Name"
+            }, 
+            "VpcId": {
+                "Type": "AWS::EC2::VPC::Id", 
+                "Description": "VPC ID"
+            }, 
+            "PrivateSubnetAz1": {
+                "Type": "String", 
+                "Description": "Private Subnet AZ 1"
+            }, 
+            "CnamePrefix": {
+                "Type": "String", 
+                "Description": "CName Prefix"
+            }, 
+            "PrivateSubnetAz3": {
+                "Type": "String", 
+                "Description": "Private Subnet AZ 3"
+            }, 
+            "PrivateSubnetAz2": {
+                "Type": "String", 
+                "Description": "Private Subnet AZ 2"
+            }, 
+            "SolutionStackName": {
+                "Type": "String", 
+                "Description": "Solution Stack Name"
+            }, 
+            "PublicSubnetAz1": {
+                "Type": "String", 
+                "Description": "Public Subnet AZ 1"
+            }, 
+            "PublicSubnetAz2": {
+                "Type": "String", 
+                "Description": "Public Subnet AZ 2"
+            }, 
+            "HealthcheckUrl": {
+                "Default": "/", 
+                "Type": "String", 
+                "Description": "Healthcheck URL"
+            }, 
+            "InstanceType": {
+                "Default": "t2.nano", 
+                "Type": "String", 
+                "Description": "InstanceType"
+            }, 
+            "S3BucketArn": {
+                "Type": "String", 
+                "Description": "Environment Name"
+            }, 
+            "PublicSubnetAz3": {
+                "Type": "String", 
+                "Description": "Public Subnet AZ 3"
+            }
+        }
+    }
+}
