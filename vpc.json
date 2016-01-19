@@ -1,0 +1,27 @@
+{
+    "StackName": "VPC01",
+    "Parameters": [
+        {
+            "ParameterKey": "VpcAz1",
+            "ParameterValue": "us-west-2a"
+        },
+        {
+            "ParameterKey": "VpcAz2",
+            "ParameterValue": "us-west-2b"
+        },
+        {
+            "ParameterKey": "VpcAz3",
+            "ParameterValue": "us-west-2c"
+        },
+        {
+            "ParameterKey": "ThreeAZs",
+            "ParameterValue": "false"
+        }
+    ],
+    "Tags": [
+        {
+            "Key": "Application",
+            "Value": "Hello Phoenix"
+        }
+    ]
+}
