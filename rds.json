@@ -1,9 +1,9 @@
 {
-    "StackName": "RDS01",
+    "StackName": "RDS03",
     "Parameters": [
         {
-            "ParameterKey": "DbPassword",
-            "ParameterValue": "ad@#alshd(*^%)"
+          "ParameterKey": "DbPassword",
+          "ParameterValue": "PASSWORD"
         }
     ],
     "Capabilities": [
