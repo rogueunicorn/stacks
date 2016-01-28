@@ -1,0 +1,15 @@
+{
+    "StackName": "EB",
+    "Parameters": [
+        {
+          "ParameterKey": "InstanceType",
+          "ParameterValue": "t2.nano"
+        }
+    ],
+    "Tags": [
+        {
+            "Key": "Application",
+            "Value": "Hello Phoenix"
+        }
+    ]
+}
